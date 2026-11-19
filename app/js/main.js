@@ -6,7 +6,7 @@ import {
 } from './store.js';
 import {
   renderChecklist, renderDetailPane, renderFilterBar, renderHeaderStats,
-  renderMissablesView, renderRoadmapView, renderSaveView,
+  renderMissablesView, renderNextUp, renderRoadmapView, renderSaveView,
 } from './views.js';
 
 const state = {
@@ -49,22 +49,28 @@ function render() {
   const main = document.getElementById('view-main');
   const detail = document.getElementById('detail-pane');
   const bar = document.getElementById('filter-bar');
+  const nextUp = document.getElementById('next-up');
   if (state.view === 'checklist') {
     bar.hidden = false;
+    nextUp.hidden = false;
     main.innerHTML = renderChecklist(state.trophies, state.progress, state.filters, state.selectedId);
     const count = main.querySelectorAll('.row').length;
     bar.innerHTML = renderFilterBar(state.filters, state.progress, count, state.trophies.length);
+    nextUp.innerHTML = renderNextUp(state.trophies, state.progress);
     detail.innerHTML = renderDetailPane(selectedTrophy(), state.progress);
   } else if (state.view === 'roadmap') {
     bar.hidden = true;
+    nextUp.hidden = true;
     main.innerHTML = renderRoadmapView(state.trophies, state.progress);
     detail.innerHTML = renderDetailPane(selectedTrophy(), state.progress);
   } else if (state.view === 'missables') {
     bar.hidden = true;
+    nextUp.hidden = true;
     main.innerHTML = renderMissablesView(state.trophies, state.progress);
     detail.innerHTML = renderDetailPane(selectedTrophy(), state.progress);
   } else {
     bar.hidden = true;
+    nextUp.hidden = true;
     main.innerHTML = renderSaveView(state.progress);
     detail.innerHTML = renderDetailPane(selectedTrophy(), state.progress);
   }
@@ -135,6 +141,8 @@ function wireRowControls() {
     });
   }
   for (const row of document.querySelectorAll('[data-select]')) {
+    if (row.dataset.wired) continue;
+    row.dataset.wired = '1';
     row.addEventListener('click', () => {
       state.selectedId = Number(row.dataset.select);
       render();
@@ -146,6 +154,54 @@ function wireRowControls() {
       setNote(state.progress, Number(noteBox.dataset.note), noteBox.value);
       persist();
     });
+  }
+}
+
+const VIEW_KEYS = { '1': 'checklist', '2': 'roadmap', '3': 'missables', '4': 'save' };
+
+function visibleRowIds() {
+  return [...document.querySelectorAll('#view-main [data-select]')].map((el) => Number(el.dataset.select));
+}
+
+function moveSelection(delta) {
+  const ids = visibleRowIds();
+  if (!ids.length) return;
+  const at = ids.indexOf(state.selectedId);
+  const next = at === -1 ? 0 : Math.min(ids.length - 1, Math.max(0, at + delta));
+  state.selectedId = ids[next];
+  render();
+  const row = document.querySelector('#view-main .row.selected');
+  if (row) row.scrollIntoView({ block: 'nearest' });
+}
+
+function handleKeys(e) {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'select') {
+    if (e.key === 'Escape') e.target.blur();
+    return;
+  }
+  if (VIEW_KEYS[e.key]) {
+    state.view = VIEW_KEYS[e.key];
+    render();
+    return;
+  }
+  if (e.key === '/') {
+    e.preventDefault();
+    if (state.view !== 'checklist') { state.view = 'checklist'; render(); }
+    const query = document.getElementById('f-query');
+    if (query) { query.focus(); query.select(); }
+    return;
+  }
+  if (e.key === 'j' || e.key === 'ArrowDown') { e.preventDefault(); moveSelection(1); return; }
+  if (e.key === 'k' || e.key === 'ArrowUp') { e.preventDefault(); moveSelection(-1); return; }
+  if (e.key === ' ' || e.key === 'Enter') {
+    if (e.target.closest && e.target.closest('button')) return;
+    if (!state.selectedId) return;
+    e.preventDefault();
+    toggleEarned(state.progress, state.selectedId);
+    persist();
+    render();
   }
 }
 
@@ -164,6 +220,7 @@ async function boot() {
   for (const btn of document.querySelectorAll('[data-view]')) {
     btn.addEventListener('click', () => { state.view = btn.dataset.view; render(); });
   }
+  document.addEventListener('keydown', handleKeys);
   render();
   const listEl = document.getElementById('view-main');
   const selectedRow = listEl.querySelector('.row.selected');

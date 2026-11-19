@@ -9,6 +9,8 @@ An offline guide and tracker for all 55 PlayStation 5 trophies of Grand Theft Au
 ## What it is
 
 - **Checklist** of the official 55 (1 platinum, 2 gold, 6 silver, 46 bronze) with official names, descriptions and grades, saved progress in `localStorage`, progress counters for the 22 trophies PSN tracks by count (42 Shooting Range golds, 250 stunts, 100 WAiNK locations, …), per-trophy notes, and filters by kind, grade, status, missable-only and text search.
+- **Next-up planner** above the checklist: the next five unearned trophies, earliest roadmap stage first, counters nearest completion first (e.g. 17/42), missables in the current stage flagged — click one to open its guide.
+- **Keyboard shortcuts**: `j`/`k` or arrows move the selection, `Space`/`Enter` toggles earned, `/` focuses search, `1`–`4` switch views.
 - **Guide pane** for every trophy: our own words from the official description — what to do, how to track it, when it can be missed — with sources cited beside each guide (Exophase for the official list, PSNProfiles for PSN counts, and our own advice, honestly marked where a place is not yet checked in the game).
 - **Roadmap** to the platinum in four stages (story run → strands & people → activities & crime → collectibles & cleanup) with per-stage progress.
 - **Missables** view flagging the 17 trophies that can be locked or missed, with the safe window for each.

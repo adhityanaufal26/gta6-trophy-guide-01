@@ -1,5 +1,6 @@
 // Rendering: header stats, filter bar, checklist, guide detail, roadmap, missables and save views.
 import { applyFilters, counterText, displayDescription, displayName, isSpoilerHidden, progressStats } from './filters.js';
+import { currentStage, nextUpReason, nextUpTrophies } from './planner.js';
 import { ROADMAP_STAGES, missableTrophies, missableWindow, stageProgress, stageTrophies } from './roadmap.js';
 
 export function escapeHtml(text) {
@@ -149,5 +150,29 @@ export function renderSaveView(progress) {
     '<label class="check big"><input type="checkbox" id="save-spoiler"' + (progress.settings.spoiler ? ' checked' : '') + '> Spoiler shield — hide unearned story trophies</label>' +
     '<p class="save-note">Export before clearing browser data. Import replaces the progress on this device. The demo seed (?demo=1) never overwrites your real save.</p>' +
     '<p id="save-status" class="save-status" role="status"></p></section>'
+  );
+}
+
+export function renderNextUp(trophies, progress) {
+  const picks = nextUpTrophies(trophies, progress, 5);
+  if (!picks.length) return '<p class="next-up-empty">All trophies earned — platinum unlocked.</p>';
+  const stageNow = currentStage(trophies, progress);
+  const cards = picks.map((t) => {
+    const pct = t.target ? Math.round(Math.min(((progress.counters[t.id] || 0) / t.target) * 100, 100)) : 0;
+    const bar = t.target
+      ? '<span class="next-bar"><span class="next-bar-fill" style="width:' + pct + '%"></span></span>'
+      : '';
+    return (
+      '<button type="button" class="next-card" data-select="' + t.id + '">' +
+      '<span class="next-name">' + escapeHtml(displayName(t, progress)) + '</span>' +
+      '<span class="next-meta">' + gradeBadge(t.grade) + '<span class="tag stage">Stage ' + t.roadmap_stage + '</span>' +
+      (t.missable ? '<span class="tag missable">Missable</span>' : '') + '</span>' +
+      '<span class="next-reason">' + escapeHtml(nextUpReason(t, progress, stageNow)) + '</span>' + bar + '</button>'
+    );
+  }).join('');
+  return (
+    '<div class="next-up-head"><h2>Next up</h2>' +
+    '<span class="next-up-sub">Stage ' + stageNow + ' in progress — earliest stage, nearest counters, missables first</span></div>' +
+    '<div class="next-cards">' + cards + '</div>'
   );
 }
