@@ -137,7 +137,7 @@ body {
   .stat-chips { justify-content: flex-start; }
 }
 
-.next-up { margin: 12px 22px 0; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px 12px; }
+.next-up { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px 12px; }
 .next-up[hidden] { display: none; }
 .next-up-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .next-up-head h2 { font-family: Georgia, serif; font-size: 17px; margin: 0; color: #fff; letter-spacing: 1px; text-transform: uppercase; }

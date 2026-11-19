@@ -49,28 +49,22 @@ function render() {
   const main = document.getElementById('view-main');
   const detail = document.getElementById('detail-pane');
   const bar = document.getElementById('filter-bar');
-  const nextUp = document.getElementById('next-up');
   if (state.view === 'checklist') {
     bar.hidden = false;
-    nextUp.hidden = false;
     main.innerHTML = renderChecklist(state.trophies, state.progress, state.filters, state.selectedId);
     const count = main.querySelectorAll('.row').length;
     bar.innerHTML = renderFilterBar(state.filters, state.progress, count, state.trophies.length);
-    nextUp.innerHTML = renderNextUp(state.trophies, state.progress);
     detail.innerHTML = renderDetailPane(selectedTrophy(), state.progress);
   } else if (state.view === 'roadmap') {
     bar.hidden = true;
-    nextUp.hidden = true;
-    main.innerHTML = renderRoadmapView(state.trophies, state.progress);
+    main.innerHTML = '<section id="next-up" class="next-up" aria-label="Next up planner">' + renderNextUp(state.trophies, state.progress) + '</section>' + renderRoadmapView(state.trophies, state.progress);
     detail.innerHTML = renderDetailPane(selectedTrophy(), state.progress);
   } else if (state.view === 'missables') {
     bar.hidden = true;
-    nextUp.hidden = true;
     main.innerHTML = renderMissablesView(state.trophies, state.progress);
     detail.innerHTML = renderDetailPane(selectedTrophy(), state.progress);
   } else {
     bar.hidden = true;
-    nextUp.hidden = true;
     main.innerHTML = renderSaveView(state.progress);
     detail.innerHTML = renderDetailPane(selectedTrophy(), state.progress);
   }
